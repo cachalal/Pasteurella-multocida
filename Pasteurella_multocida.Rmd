@@ -292,8 +292,22 @@ SDMX<- tableau_delta_i_x %>%
 SDZ<- tableau_delta_i_x %>%
   filter(MOLECULE == "SDZ" & ratio == 0)
 
+ggplot(SDZ, aes(x = CONC_TMP)) +
+  geom_point(aes(y = delta_i_x)) +
+  labs(title = "Graph of delta_i_x vs CONC_TMP",
+       x = "Concentration TMP (CONC_TMP)",
+       y = "Delta I X (delta_i_x)") +
+  theme_minimal()
+
 TMP<- tableau_delta_i_x %>%
   filter(MOLECULE == "TMP" & ratio == 0)
+
+ggplot(TMP, aes(x = CONC_TMP)) +
+  geom_point(aes(y = delta_i_x)) +
+  labs(title = "Graph of delta_i_x vs CONC_TMP",
+       x = "Concentration TMP (CONC_TMP)",
+       y = "Delta I X (delta_i_x)") +
+  theme_minimal()
 
 #1_19
 SMX_1_19<- tableau_delta_i_x %>%
@@ -301,6 +315,13 @@ SMX_1_19<- tableau_delta_i_x %>%
 
 SDMX_1_19<- tableau_delta_i_x %>%
   filter(MOLECULE == "SDMX/TMP" & ratio == "1_19")
+
+ggplot(SDMX_1_19, aes(x = CONC_TMP)) +
+  geom_point(aes(y = delta_i_x)) +
+  labs(title = "Graph of delta_i_x vs CONC_TMP",
+       x = "Concentration TMP (CONC_TMP)",
+       y = "Delta I X (delta_i_x)") +
+  theme_minimal()
 
 SDZ_1_19<- tableau_delta_i_x %>%
   filter(MOLECULE == "SDZ/TMP" & ratio == "1_19")
@@ -311,6 +332,13 @@ SMX_1_99<- tableau_delta_i_x %>%
 
 SDMX_1_99<- tableau_delta_i_x %>%
   filter(MOLECULE == "SDMX/TMP" & ratio == "1_99")
+
+ggplot(SDMX_1_99, aes(x = CONC_TMP)) +
+  geom_point(aes(y = delta_i_x)) +
+  labs(title = "Graph of delta_i_x vs CONC_TMP",
+       x = "Concentration TMP (CONC_TMP)",
+       y = "Delta I X (delta_i_x)") +
+  theme_minimal()
 
 SDZ_1_99<- tableau_delta_i_x %>%
   filter(MOLECULE == "SDZ/TMP" & ratio == "1_99")
@@ -328,18 +356,39 @@ SDZ_1_999<- tableau_delta_i_x %>%
 
 #Equation 2 : Modele sigmoide Emax, modelisation de la croissance moyenne de l'inoculum
 ```{r}
-start_values <- list(
-  delta_i_max = max(tableau_delta_i_x$delta_i_x, na.rm = TRUE),
-  delta_i_min = min(tableau_delta_i_x$delta_i_x, na.rm = TRUE),
-  EC2LOG = 1.13,
-  gam = 2.2
+start_values_sulfa <- list(
+  delta_i_max = -1.6,
+  delta_i_min = 4.1,
+  EC2LOG = 10,
+  gam = 1
 )
 
-start_values_2 <- list(
-  delta_i_max = max(tableau_delta_i_x$delta_i_x, na.rm = TRUE),
-  delta_i_min = min(tableau_delta_i_x$delta_i_x, na.rm = TRUE),
-  EC3LOG = 0.5,
-  gam = 2.2
+start_values_TMP <- list(
+  delta_i_max = 3.95,
+  delta_i_min = -3.85,
+  EC2LOG = 0.10,
+  gam = 1
+)
+
+start_values_1_19 <- list(
+  delta_i_max = 4.05,
+  delta_i_min = -3.8,
+  EC2LOG = 0.03,
+  gam = 1
+)
+
+start_values_1_99 <- list(
+  delta_i_max = 3.97,
+  delta_i_min = -4.2,
+  EC2LOG = 0.003,
+  gam = 1
+)
+
+start_values_1_999 <- list(
+  delta_i_max = 3.97,
+  delta_i_min = -4.2,
+  EC2LOG = 0.003,
+  gam = 1
 )
 
 library(minpack.lm)
@@ -348,8 +397,10 @@ library(minpack.lm)
 smx <- nlsLM(
  delta_i_x ~ delta_i_max - ((delta_i_max - delta_i_min) * ((CONC_TMP / EC2LOG)^gam) / (((-2 - delta_i_min) / delta_i_max + 2) + (CONC_TMP / EC2LOG)^gam)),
   data = SMX,
-  start = start_values,
+  start = start_values_sulfa,
   control = nls.lm.control(maxiter = 200))
+
+print(smx)
 
 parameters_smx <- summary(smx)
 print(coef(parameters_smx))
@@ -357,7 +408,7 @@ print(coef(parameters_smx))
 sdmx <- nlsLM(
  delta_i_x ~ delta_i_max - ((delta_i_max - delta_i_min) * ((CONC_TMP / EC2LOG)^gam) / (((-2 - delta_i_min) / delta_i_max + 2) + (CONC_TMP / EC2LOG)^gam)),
   data = SDMX,
-  start = start_values,
+  start = start_values_sulfa,
   control = nls.lm.control(maxiter = 200))
 
 parameters_sdmx <- summary(sdmx)
@@ -366,7 +417,7 @@ print(coef(parameters_sdmx))
 sdz <- nlsLM(
  delta_i_x ~ delta_i_max - ((delta_i_max - delta_i_min) * ((CONC_TMP / EC2LOG)^gam) / (((-2 - delta_i_min) / delta_i_max + 2) + (CONC_TMP / EC2LOG)^gam)),
   data = SDZ,
-  start = start_values,
+  start = start_values_sulfa,
   control = nls.lm.control(maxiter = 200))
 
 parameters_sdz <- summary(sdz)
@@ -375,7 +426,7 @@ print(coef(parameters_sdz))
 tmp <- nlsLM(
  delta_i_x ~ delta_i_max - ((delta_i_max - delta_i_min) * ((CONC_TMP / EC2LOG)^gam) / (((-2 - delta_i_min) / delta_i_max + 2) + (CONC_TMP / EC2LOG)^gam)),
   data = TMP,
-  start = start_values,
+  start = start_values_TMP,
   control = nls.lm.control(maxiter = 200))
 
 parameters_tmp <- summary(tmp)
@@ -383,27 +434,27 @@ print(coef(parameters_tmp))
 
 #1_19
 smx_1_19 <- nlsLM(
- delta_i_x ~ delta_i_max - ((delta_i_max - delta_i_min) * ((CONC_TMP / EC3LOG)^gam) / (((-3 - delta_i_min) / delta_i_max + 3) + (CONC_TMP / EC3LOG)^gam)),
+ delta_i_x ~ delta_i_max - ((delta_i_max - delta_i_min) * ((CONC_TMP / EC2LOG)^gam) / (((-2 - delta_i_min) / delta_i_max + 2) + (CONC_TMP / EC2LOG)^gam)),
   data = SMX_1_19,
-  start = start_values_2,
+  start = start_values_1_19,
   control = nls.lm.control(maxiter = 200))
 
 parameters_smx_1_19 <- summary(smx_1_19)
 print(coef(parameters_smx_1_19))
 
 sdmx_1_19 <- nlsLM(
- delta_i_x ~ delta_i_max - ((delta_i_max - delta_i_min) * ((CONC_TMP / EC3LOG)^gam) / (((-3 - delta_i_min) / delta_i_max + 3) + (CONC_TMP / EC3LOG)^gam)),
+ delta_i_x ~ delta_i_max - ((delta_i_max - delta_i_min) * ((CONC_TMP / EC2LOG)^gam) / (((-2 - delta_i_min) / delta_i_max + 2) + (CONC_TMP / EC2LOG)^gam)),
   data = SDMX_1_19,
-  start = start_values_2,
+  start = start_values_1_19,
   control = nls.lm.control(maxiter = 200))
 
 parameters_sdmx_1_19 <- summary(sdmx_1_19)
 print(coef(parameters_sdmx_1_19))
 
 sdz_1_19 <- nlsLM(
- delta_i_x ~ delta_i_max - ((delta_i_max - delta_i_min) * ((CONC_TMP / EC3LOG)^gam) / (((-3 - delta_i_min) / delta_i_max + 3) + (CONC_TMP / EC3LOG)^gam)),
+ delta_i_x ~ delta_i_max - ((delta_i_max - delta_i_min) * ((CONC_TMP / EC2LOG)^gam) / (((-2 - delta_i_min) / delta_i_max + 2) + (CONC_TMP / EC2LOG)^gam)),
   data = SDZ_1_19,
-  start = start_values_2,
+  start = start_values_1_19,
   control = nls.lm.control(maxiter = 200))
 
 parameters_sdz_1_19 <- summary(sdz_1_19)
@@ -518,11 +569,9 @@ PD_SMX <- ggplot() +
   geom_line(data=all_Sulfa_ratios, aes(x = CONC_TMP, y = fitsmx_1_99, color = "SMX_1_99")) +
   geom_point(data=SMX_1_999, aes(x = CONC_TMP, y = delta_i_x, color = "SMX_1_999")) +  
   geom_line(data=all_Sulfa_ratios, aes(x = CONC_TMP, y = fitsmx_1_999, color = "SMX_1_999")) +
-  geom_point(data=SMX, aes(x = CONC_TMP, y = delta_i_x, color = "SMX")) +
-  geom_line(data=all_Sulfa, aes(x = CONC_TMP, y = fitsmx, color = "SMX")) +
   scale_color_manual(name = "",
-                     values = c("SMX_1_19" = "blue", "SMX_1_99" = "darkgreen", "SMX_1_999" = "red", "SMX" = "black"),
-                     labels = c("SMX","SMX 1:19", "SMX 1:99", "SMX 1:999")) +
+                     values = c("SMX_1_19" = "blue", "SMX_1_99" = "darkgreen", "SMX_1_999" = "red"),
+                     labels = c("SMX 1:19", "SMX 1:99", "SMX 1:999")) +
   labs(title = "b",
        x = "Concentration TMP (µg/mL)",
        y = "Delta_i_x") +
@@ -535,12 +584,10 @@ PD_SDMX <- ggplot() +
   geom_point(data=SDMX_1_99, aes(x = CONC_TMP, y = delta_i_x, color = "SDMX_1_99")) +  
   geom_line(data=all_Sulfa_ratios, aes(x = CONC_TMP, y = fitsdmx_1_99, color = "SDMX_1_99")) +
   geom_point(data=SDMX_1_999, aes(x = CONC_TMP, y = delta_i_x, color = "SDMX_1_999")) +  
-  geom_line(data=all_Sulfa_ratios, aes(x = CONC_TMP, y = fitsdmx_1_999, color = "SDMX_1_999")) +
-  geom_point(data=SDMX, aes(x = CONC_TMP, y = delta_i_x, color = "SDMX")) +
-  geom_line(data=all_Sulfa, aes(x = CONC_TMP, y = fitsdmx, color = "SDMX")) + 
+  geom_line(data=all_Sulfa_ratios, aes(x = CONC_TMP, y = fitsdmx_1_999, color = "SDMX_1_999")) + 
   scale_color_manual(name = "",
-                     values = c("SDMX_1_19" = "blue", "SDMX_1_99" = "darkgreen", "SDMX_1_999" = "red", "SDMX" = "black"),
-                     labels = c("SDMX", "SDMX 1:19", "SDMX 1:99", "SDMX 1:999")) +
+                     values = c("SDMX_1_19" = "blue", "SDMX_1_99" = "darkgreen", "SDMX_1_999" = "red"),
+                     labels = c("SDMX 1:19", "SDMX 1:99", "SDMX 1:999")) +
   labs(title = "c",
        x = "Concentration TMP (µg/mL)",
        y = "Delta_i_x") +
@@ -554,11 +601,9 @@ PD_SDZ <- ggplot() +
   geom_line(data=all_Sulfa_ratios, aes(x = CONC_TMP, y = fitsdz_1_99, color="SDZ_1_99")) +
   geom_point(data=SDZ_1_999, aes(x = CONC_TMP, y = delta_i_x, color="SDZ_1_999")) +  
   geom_line(data=all_Sulfa_ratios, aes(x = CONC_TMP, y = fitsdz_1_999, color="SDZ_1_999")) +
-  geom_point(data=SDZ, aes(x = CONC_TMP, y = delta_i_x, color="SDZ")) +
-  geom_line(data=all_Sulfa, aes(x = CONC_TMP, y = fitsdz, color="SDZ")) +
   scale_color_manual(name="",
-                     values=c("SDZ_1_19"="blue", "SDZ_1_99"="darkgreen", "SDZ_1_999"="red", "SDZ"="black"),
-                     labels=c("SDZ", "SDZ 1:19", "SDZ 1:99", "SDZ 1:999")) +
+                     values=c("SDZ_1_19"="blue", "SDZ_1_99"="darkgreen", "SDZ_1_999"="red"),
+                     labels=c("SDZ 1:19", "SDZ 1:99", "SDZ 1:999")) +
   labs(title="d",
        x="Concentration TMP (µg/mL)",
        y="Delta_i_x") +
