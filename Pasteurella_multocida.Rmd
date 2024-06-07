@@ -276,8 +276,6 @@ tableau_delta_i_x <- data.frame(Strain_ID = areas$Strain_ID,
                                 CONC_TMP = areas$CONC_TMP,
                                 ratio = areas$ratio,
                                 MOLECULE =areas$MOLECULE)
-
-
 ```
 
 #Filtrer les données par MOLECULE et ratio
@@ -286,8 +284,29 @@ tableau_delta_i_x <- data.frame(Strain_ID = areas$Strain_ID,
 SMX<- tableau_delta_i_x %>%
   filter(MOLECULE == "SMX" & ratio == 0)
 
+ggplot(SMX, aes(x = CONC_TMP)) +
+  geom_point(aes(y = delta_i_x)) +
+  labs(title = "Graph of delta_i_x vs CONC_TMP",
+       x = "Concentration TMP (CONC_TMP)",
+       y = "Delta I X (delta_i_x)") +
+  theme_minimal()
+
 SDMX<- tableau_delta_i_x %>%
   filter(MOLECULE == "SDMX" & ratio == 0)
+
+ggplot(SDMX, aes(x = CONC_TMP)) +
+  geom_point(aes(y = delta_i_x)) +
+  labs(title = "Graph of delta_i_x vs CONC_TMP",
+       x = "Concentration TMP (CONC_TMP)",
+       y = "Delta I X (delta_i_x)") +
+  theme_minimal()
+
+ggplot(SDZ, aes(x = CONC_TMP)) +
+  geom_point(aes(y = delta_i_x)) +
+  labs(title = "Graph of delta_i_x vs CONC_TMP",
+       x = "Concentration TMP (CONC_TMP)",
+       y = "Delta I X (delta_i_x)") +
+  theme_minimal()
 
 SDZ<- tableau_delta_i_x %>%
   filter(MOLECULE == "SDZ" & ratio == 0)
@@ -350,16 +369,37 @@ SMX_1_999<- tableau_delta_i_x %>%
 SDMX_1_999<- tableau_delta_i_x %>%
   filter(MOLECULE == "SDMX/TMP" & ratio == "1_999")
 
+ggplot(SDMX_1_999, aes(x = CONC_TMP)) +
+  geom_point(aes(y = delta_i_x)) +
+  labs(title = "Graph of delta_i_x vs CONC_TMP",
+       x = "Concentration TMP (CONC_TMP)",
+       y = "Delta I X (delta_i_x)") +
+  theme_minimal()
+
 SDZ_1_999<- tableau_delta_i_x %>%
   filter(MOLECULE == "SDZ/TMP" & ratio == "1_999")
 ```
 
 #Equation 2 : Modele sigmoide Emax, modelisation de la croissance moyenne de l'inoculum
 ```{r}
-start_values_sulfa <- list(
-  delta_i_max = -1.6,
-  delta_i_min = 4.1,
-  EC2LOG = 10,
+start_values_SMX <- list(
+  delta_i_max = 3.63,
+  delta_i_min = -3.53,
+  EC2LOG = 5,
+  gam = 1
+)
+
+start_values_SDMX <- list(
+  delta_i_max = 3.84,
+  delta_i_min = -3.9,
+  EC2LOG = 3,
+  gam = 1.13
+)
+
+start_values_SDZ <- list(
+  delta_i_max = 4.1,
+  delta_i_min = -1.53,
+  EC2LOG = 12,
   gam = 1
 )
 
@@ -385,9 +425,9 @@ start_values_1_99 <- list(
 )
 
 start_values_1_999 <- list(
-  delta_i_max = 3.97,
-  delta_i_min = -4.2,
-  EC2LOG = 0.003,
+  delta_i_max = 3.8,
+  delta_i_min = -4.1,
+  EC2LOG = 0.001,
   gam = 1
 )
 
@@ -397,31 +437,29 @@ library(minpack.lm)
 smx <- nlsLM(
  delta_i_x ~ delta_i_max - ((delta_i_max - delta_i_min) * ((CONC_TMP / EC2LOG)^gam) / (((-2 - delta_i_min) / delta_i_max + 2) + (CONC_TMP / EC2LOG)^gam)),
   data = SMX,
-  start = start_values_sulfa,
+  start = start_values_SMX,
   control = nls.lm.control(maxiter = 200))
 
-print(smx)
-
 parameters_smx <- summary(smx)
-print(coef(parameters_smx))
+coef_SMX<-coef(parameters_smx)
 
 sdmx <- nlsLM(
  delta_i_x ~ delta_i_max - ((delta_i_max - delta_i_min) * ((CONC_TMP / EC2LOG)^gam) / (((-2 - delta_i_min) / delta_i_max + 2) + (CONC_TMP / EC2LOG)^gam)),
   data = SDMX,
-  start = start_values_sulfa,
+  start = start_values_SDMX,
   control = nls.lm.control(maxiter = 200))
 
 parameters_sdmx <- summary(sdmx)
-print(coef(parameters_sdmx))
+coef_SDMX<-coef(parameters_sdmx)
 
 sdz <- nlsLM(
  delta_i_x ~ delta_i_max - ((delta_i_max - delta_i_min) * ((CONC_TMP / EC2LOG)^gam) / (((-2 - delta_i_min) / delta_i_max + 2) + (CONC_TMP / EC2LOG)^gam)),
   data = SDZ,
-  start = start_values_sulfa,
+  start = start_values_SDZ,
   control = nls.lm.control(maxiter = 200))
 
 parameters_sdz <- summary(sdz)
-print(coef(parameters_sdz))
+coef_SDZ<-coef(parameters_sdz)
 
 tmp <- nlsLM(
  delta_i_x ~ delta_i_max - ((delta_i_max - delta_i_min) * ((CONC_TMP / EC2LOG)^gam) / (((-2 - delta_i_min) / delta_i_max + 2) + (CONC_TMP / EC2LOG)^gam)),
@@ -430,7 +468,7 @@ tmp <- nlsLM(
   control = nls.lm.control(maxiter = 200))
 
 parameters_tmp <- summary(tmp)
-print(coef(parameters_tmp))
+coef_TMP<-coef(parameters_tmp)
 
 #1_19
 smx_1_19 <- nlsLM(
@@ -440,7 +478,7 @@ smx_1_19 <- nlsLM(
   control = nls.lm.control(maxiter = 200))
 
 parameters_smx_1_19 <- summary(smx_1_19)
-print(coef(parameters_smx_1_19))
+coef_SMX_1_19<-coef(parameters_smx_1_19)
 
 sdmx_1_19 <- nlsLM(
  delta_i_x ~ delta_i_max - ((delta_i_max - delta_i_min) * ((CONC_TMP / EC2LOG)^gam) / (((-2 - delta_i_min) / delta_i_max + 2) + (CONC_TMP / EC2LOG)^gam)),
@@ -449,7 +487,7 @@ sdmx_1_19 <- nlsLM(
   control = nls.lm.control(maxiter = 200))
 
 parameters_sdmx_1_19 <- summary(sdmx_1_19)
-print(coef(parameters_sdmx_1_19))
+coef_SDMX_1_19<-coef(parameters_sdmx_1_19)
 
 sdz_1_19 <- nlsLM(
  delta_i_x ~ delta_i_max - ((delta_i_max - delta_i_min) * ((CONC_TMP / EC2LOG)^gam) / (((-2 - delta_i_min) / delta_i_max + 2) + (CONC_TMP / EC2LOG)^gam)),
@@ -458,63 +496,73 @@ sdz_1_19 <- nlsLM(
   control = nls.lm.control(maxiter = 200))
 
 parameters_sdz_1_19 <- summary(sdz_1_19)
-print(coef(parameters_sdz_1_19))
+coef_SDZ_1_19<-coef(parameters_sdz_1_19)
 
 #1_99
 smx_1_99 <- nlsLM(
- delta_i_x ~ delta_i_max - ((delta_i_max - delta_i_min) * ((CONC_TMP / EC3LOG)^gam) / (((-3 - delta_i_min) / delta_i_max + 3) + (CONC_TMP / EC3LOG)^gam)),
+ delta_i_x ~ delta_i_max - ((delta_i_max - delta_i_min) * ((CONC_TMP / EC2LOG)^gam) / (((-2 - delta_i_min) / delta_i_max + 2) + (CONC_TMP / EC2LOG)^gam)),
   data = SMX_1_99,
-  start = start_values_2,
+  start = start_values_1_99,
   control = nls.lm.control(maxiter = 200))
 
 parameters_smx_1_99 <- summary(smx_1_99)
-print(coef(parameters_smx_1_99))
+coef_SMX_1_99<-coef(parameters_smx_1_99)
 
 sdmx_1_99 <- nlsLM(
- delta_i_x ~ delta_i_max - ((delta_i_max - delta_i_min) * ((CONC_TMP / EC3LOG)^gam) / (((-3 - delta_i_min) / delta_i_max + 3) + (CONC_TMP / EC3LOG)^gam)),
+ delta_i_x ~ delta_i_max - ((delta_i_max - delta_i_min) * ((CONC_TMP / EC2LOG)^gam) / (((-2 - delta_i_min) / delta_i_max + 2) + (CONC_TMP / EC2LOG)^gam)),
   data = SDMX_1_99,
-  start = start_values_2,
+  start = start_values_1_99,
   control = nls.lm.control(maxiter = 200))
 
 parameters_sdmx_1_99 <- summary(sdmx_1_99)
-print(coef(parameters_sdmx_1_99))
+coef_SDMX_1_99<-coef(parameters_sdmx_1_99)
 
 sdz_1_99 <- nlsLM(
- delta_i_x ~ delta_i_max - ((delta_i_max - delta_i_min) * ((CONC_TMP / EC3LOG)^gam) / (((-3 - delta_i_min) / delta_i_max + 3) + (CONC_TMP / EC3LOG)^gam)),
+ delta_i_x ~ delta_i_max - ((delta_i_max - delta_i_min) * ((CONC_TMP / EC2LOG)^gam) / (((-2 - delta_i_min) / delta_i_max + 2) + (CONC_TMP / EC2LOG)^gam)),
   data = SDZ_1_99,
-  start = start_values_2,
+  start = start_values_1_99,
   control = nls.lm.control(maxiter = 200))
 
 parameters_sdz_1_99 <- summary(sdz_1_99)
-print(coef(parameters_sdz_1_99))
+coef_SDZ_1_99<-coef(parameters_sdz_1_99)
 
 #1_999
 smx_1_999 <- nlsLM(
- delta_i_x ~ delta_i_max - ((delta_i_max - delta_i_min) * ((CONC_TMP / EC3LOG)^gam) / (((-3 - delta_i_min) / delta_i_max + 3) + (CONC_TMP / EC3LOG)^gam)),
+ delta_i_x ~ delta_i_max - ((delta_i_max - delta_i_min) * ((CONC_TMP / EC2LOG)^gam) / (((-2 - delta_i_min) / delta_i_max + 2) + (CONC_TMP / EC2LOG)^gam)),
   data = SMX_1_999,
-  start = start_values_2,
+  start = start_values_1_999,
   control = nls.lm.control(maxiter = 200))
 
 parameters_smx_1_999 <- summary(smx_1_999)
-print(coef(parameters_smx_1_999))
+coef_SMX_1_999<-coef(parameters_smx_1_999)
 
 sdmx_1_999 <- nlsLM(
- delta_i_x ~ delta_i_max - ((delta_i_max - delta_i_min) * ((CONC_TMP / EC3LOG)^gam) / (((-3 - delta_i_min) / delta_i_max + 3) + (CONC_TMP / EC3LOG)^gam)),
+ delta_i_x ~ delta_i_max - ((delta_i_max - delta_i_min) * ((CONC_TMP / EC2LOG)^gam) / (((-2 - delta_i_min) / delta_i_max + 2) + (CONC_TMP / EC2LOG)^gam)),
   data = SDMX_1_99,
-  start = start_values_2,
+  start = start_values_1_999,
   control = nls.lm.control(maxiter = 200))
 
 parameters_sdmx_1_999 <- summary(sdmx_1_999)
-print(coef(parameters_sdmx_1_999))
+coef_SDMX_1_999<-coef(parameters_sdmx_1_999)
 
 sdz_1_999 <- nlsLM(
- delta_i_x ~ delta_i_max - ((delta_i_max - delta_i_min) * ((CONC_TMP / EC3LOG)^gam) / (((-3 - delta_i_min) / delta_i_max + 3) + (CONC_TMP / EC3LOG)^gam)),
+ delta_i_x ~ delta_i_max - ((delta_i_max - delta_i_min) * ((CONC_TMP / EC2LOG)^gam) / (((-2 - delta_i_min) / delta_i_max + 2) + (CONC_TMP / EC2LOG)^gam)),
   data = SDZ_1_999,
-  start = start_values_2,
+  start = start_values_1_999,
   control = nls.lm.control(maxiter = 200))
 
 parameters_sdz_1_999 <- summary(sdz_1_999)
-print(coef(parameters_sdz_1_999))
+coef_SDZ_1_999<-coef(parameters_sdz_1_999)
+
+all_coef <- bind_rows(
+  coef_SMX, coef_SDMX, coef_SDZ, coef_TMP,
+  coef_SMX_1_19, coef_SDMX_1_19, coef_SDZ_1_19,
+  coef_SMX_1_99, coef_SDMX_1_99, coef_SDZ_1_99,
+  coef_SMX_1_999, coef_SDMX_1_999, coef_SDZ_1_999
+)
+
+library(writexl)
+write_xlsx(all_coef, path = "parameters_PD.xlsx")
 ```
 
 #graphe PD ATBs seuls
@@ -522,8 +570,8 @@ print(coef(parameters_sdz_1_999))
 all_Sulfa <- data.frame(CONC_TMP=seq(0, 512, by=2))  # creer un range de concentrations en ATB pour fitter le modèle, adapté au range existant dans les manips (exemple sulfa seul, aller de 0 à 512)
 
 all_Sulfa$fitsmx <-predict(smx, all_Sulfa)  # calcules le fit du modèle pour smx sur ce range de concentrations
+all_Sulfa$fitsdmx <-predict(sdmx, all_Sulfa) # calcules le fit du modèle pour sdmx sur ce range de concentrations
 all_Sulfa$fitsdz <-predict(sdz, all_Sulfa)  # calcules le fit du modèle pour sdz sur ce range de concentrations
-all_Sulfa$fitsdmx <-predict(sdmx, all_Sulfa)
 
 all_TMP <- data.frame(CONC_TMP=seq(0.001, 1, by=0.02))
 all_TMP$fittmp <-predict(tmp, all_TMP)
@@ -555,7 +603,7 @@ PD_seul <- ggplot() +
                      values = c("SMX" = "blue", "SDMX" = "darkgreen", "SDZ" = "red", "TMP" = "black"),
                      labels = c("SMX", "SDMX", "SDZ", "TMP")) +
   labs(title = "a",
-       x = "Concentration TMP (µg/mL)",
+       x = "Concentration (µg/mL)",
        y = "Delta_i_x") +
   scale_x_continuous(trans = "log2") +
   theme_bw()
@@ -611,6 +659,7 @@ PD_SDZ <- ggplot() +
   theme_bw()
 
 PD_combined_plot <- (PD_seul + PD_SMX + PD_SDMX + PD_SDZ + plot_layout(ncol = 1))
+y_combined_limits <- range(all_data$LOG10_CFU, na.rm = TRUE)
 
 ggsave("PD_combined_plot.png", PD_combined_plot, width = 9, height = 10)
 ```
