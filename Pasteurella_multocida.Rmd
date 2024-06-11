@@ -106,20 +106,23 @@ filtered_data_033_4 <- combined_data %>%
 filtered_data_033_13 <- combined_data %>%
   filter(Strain_ID =="PM_033_13")
 
+filtered_data_033_7 <- combined_data %>%
+  filter(Strain_ID =="PM_033_7")
+
+filtered_data_033_11 <- combined_data %>%
+  filter(Strain_ID =="PM_033_11")
+
 filtered_data_033_17 <- combined_data %>%
   filter(Strain_ID =="PM_033_17")
 
-filtered_data_0359_2 <- combined_data %>%
-  filter(Strain_ID =="PM_0359_2")
+filtered_data_033_27 <- combined_data %>%
+  filter(Strain_ID =="PM_033_27")
 
-filtered_data_0359_15 <- combined_data %>%
-  filter(Strain_ID =="PM_0359_15")
-
-filtered_data_0359_4 <- combined_data %>%
-  filter(Strain_ID =="PM_0359_4")
+filtered_data_033_37 <- combined_data %>%
+  filter(Strain_ID =="PM_033_37")
 
 # Extraire les limites Y communes
-all_data <- bind_rows(filtered_data_033_13, filtered_data_033_17, filtered_data_033_4, filtered_data_0359_2, filtered_data_0359_15, filtered_data_0359_4)
+all_data <- bind_rows(filtered_data_033_13, filtered_data_033_17, filtered_data_033_4, filtered_data_033_11, filtered_data_033_7, filtered_data_033_27, filtered_data_033_37)
 y_limits <- range(all_data$LOG10_CFU, na.rm = TRUE)
 
 graphe_SMX_033 <- ggplot(filtered_data_033_4, aes(x = TIME, y = LOG10_CFU, group = xCMI, color = factor(xCMI))) +
@@ -129,25 +132,39 @@ graphe_SMX_033 <- ggplot(filtered_data_033_4, aes(x = TIME, y = LOG10_CFU, group
   facet_wrap(~ ID) +
   labs(title = "a) SMX, CMI=8 µg/mL",
        x = "Temps (heures)",
-       y = "LOG10",
+       y = "LOG10 (UFC/mL)",
        color = "xCMI") +
   theme_minimal() +
   ylim(y_limits) +
   expand_limits(x = c(min(filtered_data_033_4$TIME) - 1, max(filtered_data_033_4$TIME) + 1)) +
   theme(legend.position = "none")
 
-graphe_SMX_0359 <- ggplot(filtered_data_0359_2, aes(x = TIME, y = LOG10_CFU, group = xCMI, color = factor(xCMI))) +
+graphe_SDMX_033 <- ggplot(filtered_data_033_7, aes(x = TIME, y = LOG10_CFU, group = xCMI, color = factor(xCMI))) +
   geom_line() +
   geom_point(shape = 18) +
   scale_color_paletteer_d("awtools::mpalette") +
   facet_wrap(~ ID) +
-  labs(title = "d) SMX, CMI=16 µg/mL",
+  labs(title = "b) SDMX, CMI=16 µg/mL",
        x = "Temps (heures)",
-       y = "LOG10",
+       y = "LOG10 (UFC/mL)",
        color = "xCMI") +
   theme_minimal() +
   ylim(y_limits) +
-  expand_limits(x = c(min(filtered_data_0359_2$TIME) - 1, max(filtered_data_0359_2$TIME) + 1)) +
+  expand_limits(x = c(min(filtered_data_033_7$TIME) - 1, max(filtered_data_033_7$TIME) + 1)) +
+  theme(legend.position = "none")
+
+graphe_SDZ_033 <- ggplot(filtered_data_033_11, aes(x = TIME, y = LOG10_CFU, group = xCMI, color = factor(xCMI))) +
+  geom_line() +
+  geom_point(shape = 18) +
+  scale_color_paletteer_d("awtools::mpalette") +
+  facet_wrap(~ ID) +
+  labs(title = "c) SDZ, CMI=16 µg/mL",
+       x = "Temps (heures)",
+       y = "LOG10 (UFC/mL)",
+       color = "xCMI") +
+  theme_minimal() +
+  ylim(y_limits) +
+  expand_limits(x = c(min(filtered_data_033_11$TIME) - 1, max(filtered_data_033_11$TIME) + 1)) +
   theme(legend.position = "none")
 
 graphe_TMP_033 <- ggplot(filtered_data_033_13, aes(x = TIME, y = LOG10_CFU, group = xCMI, color = factor(xCMI))) +
@@ -155,56 +172,56 @@ graphe_TMP_033 <- ggplot(filtered_data_033_13, aes(x = TIME, y = LOG10_CFU, grou
   geom_point(shape = 18) +
   scale_color_paletteer_d("awtools::mpalette") +
   facet_wrap(~ ID) +
-  labs(title = "b) TMP, CMI=0.065 µg/mL",
+  labs(title = "g) TMP, CMI=0.065 µg/mL",
        x = "Temps (heures)",
-       y = "LOG10",
+       y = "LOG10 (UFC/mL)",
        color = "xCMI") +
   theme_minimal() +
   ylim(y_limits) +
   expand_limits(x = c(min(filtered_data_033_13$TIME) - 1, max(filtered_data_033_13$TIME) + 1)) +
   theme(legend.position = "none")
 
-graphe_TMP_0359 <- ggplot(filtered_data_0359_15, aes(x = TIME, y = LOG10_CFU, group = xCMI, color = factor(xCMI))) +
-  geom_line() +
-  geom_point(shape = 18) +
-  scale_color_paletteer_d("awtools::mpalette") +
-  facet_wrap(~ ID) +
-  labs(title = "e) TMP, CMI=0.065 µg/mL",
-       x = "Temps (heures)",
-       y = "LOG10",
-       color = "xCMI") +
-  theme_minimal() +
-  ylim(y_limits) +
-  expand_limits(x = c(min(filtered_data_0359_15$TIME) - 1, max(filtered_data_0359_15$TIME) + 1)) +
-  theme(legend.position = "none")
 
 graphe_SMX_1_19_033 <- ggplot(filtered_data_033_17, aes(x = TIME, y = LOG10_CFU, group = xCMI, color = factor(xCMI))) +
   geom_line() +
   geom_point(shape = 18) +
   scale_color_paletteer_d("awtools::mpalette") +
    facet_wrap(~ ID) +
-  labs(title = "c) SMX 1:19, CMI=0.016/0.3 µg/mL",
+  labs(title = paste("d) SMX 1:19", "CMI=0.016/0.3 µg/mL", sep = "\n"),
        x = "Temps (heures)",
-       y = "LOG10",
+       y = "LOG10 (UFC/mL)",
        color = "xCMI") +
   theme_minimal() +
   ylim(y_limits) +
   expand_limits(x = c(min(filtered_data_033_17$TIME) - 1, max(filtered_data_033_17$TIME) + 1))
 
-graphe_SMX_1_19_0359 <- ggplot(filtered_data_0359_4, aes(x = TIME, y = LOG10_CFU, group = xCMI, color = factor(xCMI))) +
+graphe_SDMX_1_99_033 <- ggplot(filtered_data_033_27, aes(x = TIME, y = LOG10_CFU, group = xCMI, color = factor(xCMI))) +
   geom_line() +
   geom_point(shape = 18) +
   scale_color_paletteer_d("awtools::mpalette") +
    facet_wrap(~ ID) +
-  labs(title = "f) SMX 1:19, CMI=0.016/0.3 µg/mL",
+  labs(title = paste("e) SDMX 1:99", "CMI=0.015/1.5 µg/mL", sep = "\n"),
        x = "Temps (heures)",
-       y = "LOG10",
+       y = "LOG10 (UFC/mL)",
        color = "xCMI") +
   theme_minimal() +
   ylim(y_limits) +
-  expand_limits(x = c(min(filtered_data_0359_4$TIME) - 1, max(filtered_data_0359_4$TIME) + 1))
+  expand_limits(x = c(min(filtered_data_033_27$TIME) - 1, max(filtered_data_033_27$TIME) + 1))
 
-combined_plot <- (graphe_SMX_033 + graphe_TMP_033 + graphe_SMX_1_19_033 + graphe_SMX_0359 + graphe_TMP_0359 + graphe_SMX_1_19_0359 + plot_layout(ncol = 3))
+graphe_SDZ_1_999_033 <- ggplot(filtered_data_033_37, aes(x = TIME, y = LOG10_CFU, group = xCMI, color = factor(xCMI))) +
+  geom_line() +
+  geom_point(shape = 18) +
+  scale_color_paletteer_d("awtools::mpalette") +
+   facet_wrap(~ ID) +
+  labs(title = paste("f) SDZ 1:999", "CMI=0.0078/7.8 µg/mL", sep = "\n"),
+       x = "Temps (heures)",
+       y = "LOG10 (UFC/mL)",
+       color = "xCMI") +
+  theme_minimal() +
+  ylim(y_limits) +
+  expand_limits(x = c(min(filtered_data_033_37$TIME) - 1, max(filtered_data_033_37$TIME) + 1))
+
+combined_plot <- (graphe_SMX_033 + graphe_SDMX_033 + graphe_SDZ_033 + graphe_SMX_1_19_033 + graphe_SDMX_1_99_033 + graphe_SDZ_1_999_033 + graphe_TMP_033 + plot_layout(ncol = 3))
 
 ggsave("combined_plot.png", combined_plot, width = 9, height = 8)
 ```
@@ -535,9 +552,9 @@ coef_SMX_1_999<-coef(parameters_smx_1_999)
 
 sdmx_1_999 <- nlsLM(
  delta_i_x ~ delta_i_max - ((delta_i_max - delta_i_min) * ((xCMI / EC2LOG)^gam) / (((-2 - delta_i_min) / delta_i_max + 2) + (xCMI / EC2LOG)^gam)),
-  data = SDMX_1_99,
+  data = SDMX_1_999,
   start = start_values_1_999,
-  control = nls.lm.control(maxiter = 200))
+  control = nls.lm.control(maxiter = 200)) 
 
 parameters_sdmx_1_999 <- summary(sdmx_1_999)
 coef_SDMX_1_999<-coef(parameters_sdmx_1_999)
@@ -564,16 +581,16 @@ write_xlsx(all_coef, path = "parameters_PD.xlsx")
 
 #graphe PD ATBs seuls
 ```{r}
-all_Sulfa <- data.frame(CONC_TMP=seq(0, 70, by=0.1))  # creer un range de concentrations en ATB pour fitter le modèle, adapté au range existant dans les manips (exemple sulfa seul, aller de 0 à 512)
+all_Sulfa <- data.frame(xCMI=seq(0, 70, by=0.1))  # creer un range de concentrations en ATB pour fitter le modèle, adapté au range existant dans les manips (exemple sulfa seul, aller de 0 à 512)
 
 all_Sulfa$fitsmx <-predict(smx, all_Sulfa)  # calcules le fit du modèle pour smx sur ce range de concentrations
 all_Sulfa$fitsdmx <-predict(sdmx, all_Sulfa) # calcules le fit du modèle pour sdmx sur ce range de concentrations
 all_Sulfa$fitsdz <-predict(sdz, all_Sulfa)  # calcules le fit du modèle pour sdz sur ce range de concentrations
 
-all_TMP <- data.frame(CONC_TMP=seq(0.001, 1, by=0.02))
+all_TMP <- data.frame(xCMI=seq(0.001, 70, by=0.02))
 all_TMP$fittmp <-predict(tmp, all_TMP)
 
-all_Sulfa_ratios <- data.frame(CONC_TMP=seq(0, 0.5, by=0.005))
+all_Sulfa_ratios <- data.frame(xCMI=seq(0, 20, by=0.005))
 
 all_Sulfa_ratios$fitsmx_1_19 <- predict(smx_1_19, all_Sulfa_ratios)
 all_Sulfa_ratios$fitsdmx_1_19 <- predict(sdmx_1_19, all_Sulfa_ratios)
@@ -588,75 +605,74 @@ all_Sulfa_ratios$fitsdmx_1_999 <- predict(sdmx_1_999, all_Sulfa_ratios)
 all_Sulfa_ratios$fitsdz_1_999 <- predict(sdz_1_999, all_Sulfa_ratios)
 
 PD_seul <- ggplot() +
-  geom_point(data=SMX, aes(x = CONC_TMP, y = delta_i_x, color = "SMX")) +  
-  geom_line(data=all_Sulfa, aes(x = CONC_TMP, y = fitsmx, color = "SMX")) +
-  geom_point(data=SDMX, aes(x = CONC_TMP, y = delta_i_x, color = "SDMX")) +  
-  geom_line(data=all_Sulfa, aes(x = CONC_TMP, y = fitsdmx, color = "SDMX")) +
-  geom_point(data=SDZ, aes(x = CONC_TMP, y = delta_i_x, color = "SDZ")) +  
-  geom_line(data=all_Sulfa, aes(x = CONC_TMP, y = fitsdz, color = "SDZ")) +
-  geom_point(data=TMP, aes(x = CONC_TMP, y = delta_i_x, color = "TMP")) +  
-  geom_line(data=all_TMP, aes(x = CONC_TMP, y = fittmp, color = "TMP")) +
+  geom_point(data=SMX, aes(x = xCMI, y = delta_i_x, color = "SMX")) +  
+  geom_line(data=all_Sulfa, aes(x = xCMI, y = fitsmx, color = "SMX")) +
+  geom_point(data=SDMX, aes(x = xCMI, y = delta_i_x, color = "SDMX")) +  
+  geom_line(data=all_Sulfa, aes(x = xCMI, y = fitsdmx, color = "SDMX")) +
+  geom_point(data=SDZ, aes(x = xCMI, y = delta_i_x, color = "SDZ")) +  
+  geom_line(data=all_Sulfa, aes(x = xCMI, y = fitsdz, color = "SDZ")) +
+  geom_point(data=TMP, aes(x = xCMI, y = delta_i_x, color = "TMP")) +  
+  geom_line(data=all_TMP, aes(x = xCMI, y = fittmp, color = "TMP")) +
   scale_color_manual(name = "",
                      values = c("SMX" = "blue", "SDMX" = "darkgreen", "SDZ" = "red", "TMP" = "black"),
                      labels = c("SMX", "SDMX", "SDZ", "TMP")) +
   labs(title = "a",
-       x = "Concentration (µg/mL)",
-       y = "Delta_i_x") +
-  scale_x_continuous(trans = "log2") +
+       x = "Concentration (xCMI)",
+       y = "Croissance moyenne\n de l'inoculum (ΔlogUFC/mL)") +
+  scale_x_continuous(trans = "log2",breaks=c(0,0.25,0.5,1,2,4,8,16,32,64)) +
   theme_bw()
 
 print(PD_seul)
 
 PD_SMX <- ggplot() +
-  geom_point(data=SMX_1_19, aes(x = CONC_TMP, y = delta_i_x, color = "SMX_1_19")) +
-  geom_line(data=all_Sulfa_ratios, aes(x = CONC_TMP, y = fitsmx_1_19, color = "SMX_1_19")) +
-  geom_point(data=SMX_1_99, aes(x = CONC_TMP, y = delta_i_x, color = "SMX_1_99")) +  
-  geom_line(data=all_Sulfa_ratios, aes(x = CONC_TMP, y = fitsmx_1_99, color = "SMX_1_99")) +
-  geom_point(data=SMX_1_999, aes(x = CONC_TMP, y = delta_i_x, color = "SMX_1_999")) +  
-  geom_line(data=all_Sulfa_ratios, aes(x = CONC_TMP, y = fitsmx_1_999, color = "SMX_1_999")) +
+  geom_point(data=SMX_1_19, aes(x = xCMI, y = delta_i_x, color = "SMX_1_19")) +
+  geom_line(data=all_Sulfa_ratios, aes(x = xCMI, y = fitsmx_1_19, color = "SMX_1_19")) +
+  geom_point(data=SMX_1_99, aes(x = xCMI, y = delta_i_x, color = "SMX_1_99")) +  
+  geom_line(data=all_Sulfa_ratios, aes(x = xCMI, y = fitsmx_1_99, color = "SMX_1_99")) +
+  geom_point(data=SMX_1_999, aes(x = xCMI, y = delta_i_x, color = "SMX_1_999")) +  
+  geom_line(data=all_Sulfa_ratios, aes(x = xCMI, y = fitsmx_1_999, color = "SMX_1_999")) +
   scale_color_manual(name = "",
-                     values = c("SMX_1_19" = "blue", "SMX_1_99" = "darkgreen", "SMX_1_999" = "red"),
+                     values = c("SMX_1_19" = "darkseagreen", "SMX_1_99" = "limegreen", "SMX_1_999" = "darkgreen"),
                      labels = c("SMX 1:19", "SMX 1:99", "SMX 1:999")) +
   labs(title = "b",
-       x = "Concentration TMP (µg/mL)",
-       y = "Delta_i_x") +
-  scale_x_continuous(trans = "log2")+
+       x = "Concentration TMP (xCMI)",
+       y = "Croissance moyenne\n de l'inoculum (ΔlogUFC/mL)") +
+  scale_x_continuous(trans = "log2",breaks=c(0,0.25,0.5,1,2,4,8,16,32,64)) +
   theme_bw()
 
 PD_SDMX <- ggplot() +
-  geom_point(data=SDMX_1_19, aes(x = CONC_TMP, y = delta_i_x, color = "SDMX_1_19")) +
-  geom_line(data=all_Sulfa_ratios, aes(x = CONC_TMP, y = fitsdmx_1_19, color = "SDMX_1_19")) +
-  geom_point(data=SDMX_1_99, aes(x = CONC_TMP, y = delta_i_x, color = "SDMX_1_99")) +  
-  geom_line(data=all_Sulfa_ratios, aes(x = CONC_TMP, y = fitsdmx_1_99, color = "SDMX_1_99")) +
-  geom_point(data=SDMX_1_999, aes(x = CONC_TMP, y = delta_i_x, color = "SDMX_1_999")) +  
-  geom_line(data=all_Sulfa_ratios, aes(x = CONC_TMP, y = fitsdmx_1_999, color = "SDMX_1_999")) + 
+  geom_point(data=SDMX_1_19, aes(x = xCMI, y = delta_i_x, color = "SDMX_1_19")) +
+  geom_line(data=all_Sulfa_ratios, aes(x = xCMI, y = fitsdmx_1_19, color = "SDMX_1_19")) +
+  geom_point(data=SDMX_1_99, aes(x = xCMI, y = delta_i_x, color = "SDMX_1_99")) +  
+  geom_line(data=all_Sulfa_ratios, aes(x = xCMI, y = fitsdmx_1_99, color = "SDMX_1_99")) +
+  geom_point(data=SDMX_1_999, aes(x = xCMI, y = delta_i_x, color = "SDMX_1_999")) +  
+  geom_line(data=all_Sulfa_ratios, aes(x = xCMI, y = fitsdmx_1_999, color = "SDMX_1_999")) + 
   scale_color_manual(name = "",
-                     values = c("SDMX_1_19" = "blue", "SDMX_1_99" = "darkgreen", "SDMX_1_999" = "red"),
+                     values = c("SDMX_1_19" = "lightcoral", "SDMX_1_99" = "red", "SDMX_1_999" = "darkred"),
                      labels = c("SDMX 1:19", "SDMX 1:99", "SDMX 1:999")) +
   labs(title = "c",
-       x = "Concentration TMP (µg/mL)",
-       y = "Delta_i_x") +
-  scale_x_continuous(trans = "log2")+
+       x = "Concentration TMP (xCMI)",
+       y = "Croissance moyenne\n de l'inoculum (ΔlogUFC/mL)") +
+  scale_x_continuous(trans = "log2",breaks=c(0,0.25,0.5,1,2,4,8,16,32,64))+
   theme_bw()
 
 PD_SDZ <- ggplot() +
-  geom_point(data=SDZ_1_19, aes(x = CONC_TMP, y = delta_i_x, color="SDZ_1_19")) +
-  geom_line(data=all_Sulfa_ratios, aes(x = CONC_TMP, y = fitsdz_1_19, color="SDZ_1_19")) +
-  geom_point(data=SDZ_1_99, aes(x = CONC_TMP, y = delta_i_x, color="SDZ_1_99")) +  
-  geom_line(data=all_Sulfa_ratios, aes(x = CONC_TMP, y = fitsdz_1_99, color="SDZ_1_99")) +
-  geom_point(data=SDZ_1_999, aes(x = CONC_TMP, y = delta_i_x, color="SDZ_1_999")) +  
-  geom_line(data=all_Sulfa_ratios, aes(x = CONC_TMP, y = fitsdz_1_999, color="SDZ_1_999")) +
+  geom_point(data=SDZ_1_19, aes(x = xCMI, y = delta_i_x, color="SDZ_1_19")) +
+  geom_line(data=all_Sulfa_ratios, aes(x = xCMI, y = fitsdz_1_19, color="SDZ_1_19")) +
+  geom_point(data=SDZ_1_99, aes(x = xCMI, y = delta_i_x, color="SDZ_1_99")) +  
+  geom_line(data=all_Sulfa_ratios, aes(x = xCMI, y = fitsdz_1_99, color="SDZ_1_99")) +
+  geom_point(data=SDZ_1_999, aes(x = xCMI, y = delta_i_x, color="SDZ_1_999")) +  
+  geom_line(data=all_Sulfa_ratios, aes(x = xCMI, y = fitsdz_1_999, color="SDZ_1_999")) +
   scale_color_manual(name="",
-                     values=c("SDZ_1_19"="blue", "SDZ_1_99"="darkgreen", "SDZ_1_999"="red"),
+                     values=c("SDZ_1_19"="deepskyblue", "SDZ_1_99" = "turquoise4", "SDZ_1_999" = "blue"),
                      labels=c("SDZ 1:19", "SDZ 1:99", "SDZ 1:999")) +
   labs(title="d",
-       x="Concentration TMP (µg/mL)",
-       y="Delta_i_x") +
-  scale_x_continuous(trans = "log2") +
+       x="Concentration TMP (xCMI)",
+       y="Croissance moyenne\n de l'inoculum (ΔlogUFC/mL)") +
+  scale_x_continuous(trans = "log2",breaks=c(0,0.25,0.5,1,2,4,8,16,32,64))+
   theme_bw()
 
 PD_combined_plot <- (PD_seul + PD_SMX + PD_SDMX + PD_SDZ + plot_layout(ncol = 1))
-y_combined_limits <- range(all_data$LOG10_CFU, na.rm = TRUE)
 
 ggsave("PD_combined_plot.png", PD_combined_plot, width = 9, height = 10)
 ```
